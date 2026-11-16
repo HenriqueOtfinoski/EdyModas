@@ -1,4 +1,6 @@
-// Revelação líquida: o cursor (ou o dedo) pinta um rastro macio do segundo look sobre a foto base.
+// Revelação líquida (como na referência Lumora): a foto base fica sempre visível e o cursor
+// pinta um rastro macio da segunda foto ("depois") por cima; o rastro se desfaz aos poucos.
+// Extra pedido pela loja: enquanto o cursor estiver parado sobre a foto, o efeito continua ativo ali.
 import { reducedMotion, canHover, onReady } from './core.js';
 
 const FADE_FRAMES = 120;
@@ -10,7 +12,7 @@ export function initLiquidReveal(container, { brushRadius = 143, decay = 0.016 }
   if (!canvas || !base || reducedMotion) return;
 
   const ctx = canvas.getContext('2d');
-  const cover = document.createElement('canvas');
+  const cover = document.createElement('canvas'); // o "depois" já no enquadramento da tela
   const brush = document.createElement('canvas');
   const coverCtx = cover.getContext('2d');
   const brushCtx = brush.getContext('2d');
@@ -23,15 +25,14 @@ export function initLiquidReveal(container, { brushRadius = 143, decay = 0.016 }
   let idle = FADE_FRAMES + 1;
   let running = false;
   let visible = true;
-  let userActive = false; // o usuário já mexeu o ponteiro sobre a foto
-  let demoUntil = 0;
+  const pointer = { x: 0, y: 0, inside: false }; // cursor do mouse (coordenadas da janela)
+  let demo = null; // passada automática de convite
 
-  // A foto base usa object-position; o segundo look precisa do mesmo enquadramento.
+  // O "depois" usa o mesmo enquadramento (object-fit: cover + object-position) da foto base.
   function focalPoint() {
     const [x = '50%', y = '50%'] = getComputedStyle(base).objectPosition.split(' ');
     return [parseFloat(x) / 100, parseFloat(y) / 100];
   }
-
   function drawCover() {
     if (!after.naturalWidth || !canvas.width) return;
     const cw = cover.width, ch = cover.height;
@@ -49,8 +50,7 @@ export function initLiquidReveal(container, { brushRadius = 143, decay = 0.016 }
     canvas.height = Math.max(1, Math.round(rect.height * dpr));
     cover.width = canvas.width;
     cover.height = canvas.height;
-    // em telas estreitas o pincel acompanha a largura para não cobrir a foto inteira
-    radius = Math.min(brushRadius, rect.width * 0.3) * dpr;
+    radius = Math.min(brushRadius, rect.width * 0.34) * dpr; // em telas estreitas o pincel acompanha a largura
     diam = Math.ceil(radius * 2);
     brush.width = diam;
     brush.height = diam;
@@ -87,27 +87,24 @@ export function initLiquidReveal(container, { brushRadius = 143, decay = 0.016 }
       for (let i = 1; i <= n; i++) points.push({ x: last.x + (dx * i) / n, y: last.y + (dy * i) / n });
     } else points.push({ x, y });
     last = { x, y };
-    wake();
   }
 
-  // Demonstração automática: um "oito" suave em volta da modelo (telas de toque e convite inicial).
-  function demoPoint(now) {
-    const t = now / 1000;
-    const [fx] = focalPoint();
-    const cx = canvas.width * (canHover ? 0.5 : 0.5 + (fx - 0.5) * 0.15);
-    const cy = canvas.height * 0.46;
-    const ax = canvas.width * (canHover ? 0.2 : 0.3);
-    const ay = canvas.height * 0.26;
-    return { x: cx + Math.sin(t * 0.9) * ax, y: cy + Math.sin(t * 1.8 + 0.6) * ay };
-  }
-  const demoOn = (now) => visible && !userActive && (!canHover || now < demoUntil);
+  // cursor parado sobre a foto: o efeito permanece ali
+  const resting = () => pointer.inside && visible && pointer.y >= rect.top && pointer.y <= rect.bottom && pointer.x >= rect.left && pointer.x <= rect.right;
 
   function tick(now) {
     if (!running) return;
-    if (demoOn(now) && after.complete && after.naturalWidth) {
-      const p = demoPoint(now);
-      pushPoint(p.x, p.y);
+    if (demo) {
+      const t = (now - demo.start) / demo.duration;
+      if (t >= 1 || pointer.inside) demo = null;
+      else {
+        // um "S" suave que passa pelo rosto e pelos ombros
+        const e = t * t * (3 - 2 * t);
+        pushPoint(canvas.width * (0.3 + 0.4 * e), canvas.height * (0.34 + 0.2 * Math.sin(e * Math.PI * 2)));
+      }
     }
+    if (!points.length && resting()) points.push({ x: (pointer.x - rect.left) * dpr, y: (pointer.y - rect.top) * dpr });
+
     const drawing = points.length > 0;
     if (drawing) idle = 0;
     else if (++idle > FADE_FRAMES) {
@@ -122,7 +119,7 @@ export function initLiquidReveal(container, { brushRadius = 143, decay = 0.016 }
       for (const p of points) stamp(p.x, p.y);
       points = [];
     } else if (idle === FADE_FRAMES) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // limpeza final: não sobra resíduo
     }
     requestAnimationFrame(tick);
   }
@@ -133,35 +130,40 @@ export function initLiquidReveal(container, { brushRadius = 143, decay = 0.016 }
     requestAnimationFrame(tick);
   }
 
-  function onPointer(e) {
+  function onMove(e) {
     if (!after.naturalWidth) return;
-    if (e.pointerType === 'mouse' || e.pointerType === 'pen') userActive = true;
-    else {
-      // toque: assume o controle enquanto o dedo desliza e devolve à demonstração depois
-      userActive = true;
-      clearTimeout(onPointer.timer);
-      onPointer.timer = setTimeout(() => {
-        userActive = false;
-        last = null;
-        wake();
-      }, 1800);
+    if (e.pointerType === 'mouse' || e.pointerType === 'pen') {
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
+      pointer.inside = true;
     }
     pushPoint((e.clientX - rect.left) * dpr, (e.clientY - rect.top) * dpr);
+    wake();
+  }
+  function startDemo(duration = 2600) {
+    if (!visible || pointer.inside || !after.naturalWidth) return;
+    last = null;
+    demo = { start: performance.now(), duration };
+    wake();
   }
 
   after.onload = () => {
     resize();
     onReady(() => {
-      demoUntil = performance.now() + 4200; // convite inicial também no desktop
-      wake();
+      setTimeout(() => startDemo(), 1200); // convite: uma passada sozinha logo após a abertura
+      // em telas de toque não há cursor: repete a passada de tempos em tempos
+      if (!canHover) setInterval(() => startDemo(3200), 6500);
     });
   };
   after.src = canvas.dataset.after;
+  if (!base.complete) base.addEventListener('load', resize, { once: true });
 
   new ResizeObserver(resize).observe(container);
   addEventListener('scroll', () => (rect = container.getBoundingClientRect()), { passive: true });
-  addEventListener('pointermove', onPointer, { passive: true });
-  addEventListener('pointerdown', onPointer, { passive: true });
+  addEventListener('pointermove', onMove, { passive: true });
+  addEventListener('pointerdown', onMove, { passive: true });
+  document.documentElement.addEventListener('pointerleave', () => (pointer.inside = false));
+  addEventListener('blur', () => (pointer.inside = false));
   new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
     if (visible) wake();
