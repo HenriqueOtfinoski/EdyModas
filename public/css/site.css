@@ -180,19 +180,20 @@ img { display: block; max-width: 100%; }
 
 /* ---------- Hero ---------- */
 .hero {
-  position: relative; isolation: isolate; overflow: hidden; border-radius: 0 0 2rem 2rem; background: #a9b3b8;
+  position: relative; isolation: isolate; overflow: hidden; border-radius: 0 0 2rem 2rem; background: #eceef0;
   /* Largura com que a foto é desenhada (cobre o hero pela largura ou pela altura) e margem lateral do conteúdo. */
-  --img-w: max(100vw, 177.78vh);
+  --img-w: max(100vw, 153.3vh);
   --gutter: calc(max(0px, (100vw - 88rem) / 2) + 2rem);
 }
-.liquid { position: absolute; inset: 0; z-index: 0; }
+/* No celular a foto ocupa a parte de cima (o rosto cabe inteiro) e o texto vem logo abaixo. */
+.liquid { position: absolute; inset: 0 0 auto 0; height: 62svh; z-index: 0; }
 .liquid__base, .liquid__canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-.liquid__base { object-fit: cover; object-position: 47% 30%; }
+.liquid__base { object-fit: cover; object-position: 47% 0%; }
 .liquid__canvas { pointer-events: none; }
-.hero__vignette { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3) 0, rgba(255, 255, 255, 0) 24%, rgba(236, 238, 240, 0) 40%, rgba(236, 238, 240, 0.9) 60%, #eceef0 78%); }
-.hero__watermark { pointer-events: none; position: absolute; inset-inline: 0; top: 39svh; z-index: 1; text-align: center; user-select: none; font-weight: 700; line-height: 1; font-size: 12.5vw; white-space: nowrap; color: rgba(255, 255, 255, 0.4); translate: calc(var(--px, 0) * -0.75rem) calc(var(--py, 0) * -0.4rem); }
+.hero__vignette { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3) 0, rgba(255, 255, 255, 0) 14svh, rgba(236, 238, 240, 0) 36svh, rgba(236, 238, 240, 0.9) 54svh, #eceef0 62svh); }
+.hero__watermark { pointer-events: none; position: absolute; inset-inline: 0; top: 37svh; z-index: 1; text-align: center; user-select: none; font-weight: 700; line-height: 1; font-size: 12.5vw; white-space: nowrap; color: rgba(255, 255, 255, 0.26); }
 
-.hero__grid { position: relative; z-index: 20; display: flex; flex-direction: column; gap: 1.75rem; padding: 54svh 1.25rem 2.5rem; min-height: 100svh; }
+.hero__grid { position: relative; z-index: 20; display: flex; flex-direction: column; gap: 1.75rem; padding: 51svh 1.25rem 2.5rem; }
 .hero__left { display: flex; flex-direction: column; gap: 1.25rem; align-items: flex-start; }
 .hero__title { max-width: 18ch; font-size: 2.25rem; font-weight: 600; line-height: 0.98; letter-spacing: -0.02em; }
 .rating { display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; font-weight: 500; color: rgba(17, 17, 17, 0.7); }
@@ -223,23 +224,18 @@ img { display: block; max-width: 100%; }
 .partners__grid li { display: flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: rgba(17, 17, 17, 0.75); opacity: 0.8; transition: transform 0.35s var(--snap), opacity 0.35s var(--snap); }
 .partners__grid .icon { font-size: 0.875rem; color: rgba(17, 17, 17, 0.4); }
 @media (hover: hover) and (pointer: fine) { .partners__grid li:hover { transform: translateY(-2px); opacity: 1; } }
-.hero__bar { position: relative; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; border-top: 1px solid rgba(17, 17, 17, 0.1); padding: 1.25rem; font-size: 0.75rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.025em; color: rgba(17, 17, 17, 0.6); }
-.hero__bar-mid { display: none; }
-.hero__bar-end { display: inline-flex; gap: 0.5rem; }
-.hero__bar-end span { animation: bob 1.8s ease-in-out infinite; }
-@keyframes bob { 50% { transform: translateY(3px); } }
 
 @media (min-width: 640px) {
   .hero__grid { padding-inline: 2rem; }
   .hero__title { font-size: 3rem; }
-  .hero__bar { padding-inline: 2rem; }
-  .hero__bar-mid { display: inline; }
 }
 @media (min-width: 1024px) {
   /* Como na referência: conteúdo no alto, à esquerda e à direita; o rosto fica livre no centro. */
-  .liquid__base { object-position: 50% 30%; }
+  .hero { background: #a9b3b8; }
+  .liquid { inset: calc(var(--img-w) * -0.047) 0 0 0; height: auto; }
+  .liquid__base { object-position: 50% 0%; }
   .hero__vignette { background: linear-gradient(to bottom, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 45%, rgba(255, 255, 255, 0.35)); }
-  .hero__watermark { top: auto; bottom: 7rem; }
+  .hero__watermark { top: auto; bottom: 1rem; font-size: 8.2vw; }
   .hero__grid { flex-direction: row; justify-content: space-between; align-items: flex-start; gap: 0; min-height: 100lvh; padding: 9rem 2rem 7rem; }
   .hero__left { width: min(34rem, calc(50vw - var(--img-w) * 0.2 - var(--gutter) - 0.5rem)); gap: 1.75rem; container-type: inline-size; }
   .hero__title { max-width: none; font-size: min(3.75rem, 12.4cqi); }
@@ -247,8 +243,17 @@ img { display: block; max-width: 100%; }
   .hero-card, .partners { width: 100%; max-width: none; }
   .partners__label { text-align: right; }
   .partners__grid { justify-content: end; }
-  .hero__bar { position: absolute; inset-inline: 0; bottom: 0; margin-inline: auto; width: 100%; }
 }
+
+/* Transição de zoom (só quando o JS liga .zoom-on): o hero fica preso enquanto a página rola.
+   A seção seguinte fica por baixo do último trecho (margem negativa) e aparece quando o branco se dissolve. */
+.hero__flash { position: absolute; inset: 0; z-index: 40; background: #fff; opacity: 0; pointer-events: none; }
+.hero__zoomtext { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+.zoom-on .hero-pin { position: relative; z-index: 5; height: calc(100lvh + 190vh); margin-bottom: -100lvh; pointer-events: none; }
+.zoom-on .hero { position: sticky; top: 0; height: 100lvh; pointer-events: auto; }
+.zoom-on .hero__grid { min-height: 0; }
+.zoom-on .liquid { transform-origin: 50% 38%; }
+.zoom-on .header { position: fixed; }
 
 /* ---------- Letreiro ---------- */
 .marquee { overflow: hidden; padding: 1.75rem 0; border-bottom: 1px solid var(--line); }
@@ -262,17 +267,17 @@ img { display: block; max-width: 100%; }
 
 /* ---------- A Loja ---------- */
 .about__grid { display: grid; grid-template-columns: 1fr; align-items: center; gap: 3rem; padding: 5rem 1.25rem; }
-.about__left { position: relative; display: flex; flex-direction: column; gap: 1rem; }
-.flower { position: relative; height: 19rem; border-radius: var(--r-card); background: radial-gradient(circle at 50% 42%, #2c2c31 0%, #151517 55%, var(--ink) 100%); overflow: hidden; cursor: grab; touch-action: pan-y; }
-.flower:active { cursor: grabbing; }
-.flower__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.flower__fallback { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.flower__hint { position: absolute; left: 1rem; bottom: 1rem; font-size: 0.7rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255, 255, 255, 0.55); pointer-events: none; }
+.about__left { position: relative; min-height: 14rem; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; }
+.about__mark { position: absolute; left: -1rem; top: 50%; width: 12rem; height: 12rem; translate: 0 -50%; color: rgba(17, 17, 17, 0.12); pointer-events: none; transform-origin: 50% 20%; animation: sway 7s ease-in-out infinite; }
+.about__left > .eyebrow, .about__place { position: relative; }
+@keyframes sway { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
 .about__place { display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; color: rgba(17, 17, 17, 0.7); }
 .about__place .icon { font-size: 1.5rem; color: var(--foreground); }
 .about__place span { max-width: 18rem; }
 .about__right { display: flex; flex-direction: column; gap: 2.5rem; }
 .about__statement { font-size: 1.5rem; font-weight: 500; line-height: 1.35; letter-spacing: -0.01em; }
+/* cada palavra começa clara e escurece conforme a rolagem (opacidade controlada pelo JS) */
+.js .about__statement .sw { opacity: 0.16; transition: opacity 0.25s linear; }
 .about__footer { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.5rem; border-top: 1px solid var(--line); padding-top: 1.5rem; }
 .about__label { font-size: 0.875rem; color: rgba(17, 17, 17, 0.5); margin-bottom: 0.625rem; }
 .socials { display: flex; gap: 0.5rem; }
@@ -280,8 +285,8 @@ img { display: block; max-width: 100%; }
 .social--accent { background: var(--accent); color: #fff; }
 .social .icon { transition: transform 0.35s var(--spring); }
 @media (hover: hover) and (pointer: fine) { .social:hover .icon { transform: scale(1.2); } }
-@media (min-width: 640px) { .about__grid { padding-inline: 2rem; } .about__statement { font-size: 1.875rem; } }
-@media (min-width: 1024px) { .about__grid { grid-template-columns: 1fr 1fr; padding-block: 7rem; gap: 4rem; } .flower { height: 27rem; } }
+@media (min-width: 640px) { .about__grid { padding-inline: 2rem; } .about__statement { font-size: 1.875rem; } .about__mark { width: 16rem; height: 16rem; } }
+@media (min-width: 1024px) { .about__grid { grid-template-columns: 1fr 1fr; padding-block: 7rem; gap: 4rem; } .about__left { min-height: 20rem; } .about__mark { left: -1.5rem; width: 20rem; height: 20rem; } }
 
 /* ---------- Faixa-pílula ---------- */
 .band__list { display: flex; flex-direction: column; gap: 0.75rem; padding: 2.5rem 1.25rem; }
@@ -518,5 +523,5 @@ img { display: block; max-width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .js [data-reveal], .js [data-reveal] .line > span, .js [data-reveal] .w { opacity: 1 !important; transform: none !important; }
-  .hint--mouse, .hint--touch, .hero__hint, .flower__hint { display: none !important; }
+  .js .about__statement .sw { opacity: 1 !important; }
 }

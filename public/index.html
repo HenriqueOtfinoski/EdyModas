@@ -108,14 +108,15 @@
 
   <main id="main">
 
-    <!-- Hero -->
+    <!-- Hero (fica preso na tela durante a transição de zoom) -->
+    <div class="hero-pin" id="heroPin">
     <section class="hero" id="inicio">
       <div class="liquid" id="liquid">
         <img class="liquid__base" src="/assets/img/hero-before.jpg" alt="Retrato de modelo em tons de cinza; ao passar o cursor, a cena ganha cor, blazer pink e óculos escuros" fetchpriority="high" />
         <canvas class="liquid__canvas" aria-hidden="true" data-after="/assets/img/hero-after.jpg"></canvas>
       </div>
       <div class="hero__vignette" aria-hidden="true"></div>
-      <div class="hero__watermark" aria-hidden="true" data-reveal="watermark" data-gate="ready" data-delay="300">EDY MODAS</div>
+      <div class="hero__watermark" aria-hidden="true" data-reveal="fade" data-gate="ready" data-delay="300">EDY MODAS</div>
 
       <div class="shell hero__grid">
         <div class="hero__left">
@@ -169,13 +170,9 @@
           </div>
         </div>
       </div>
-
-      <div class="shell hero__bar" data-reveal="fade" data-gate="ready" data-delay="900">
-        <span>Há 20 anos</span>
-        <span class="hero__bar-mid">Mariano Moro — Rio Grande do Sul</span>
-        <span class="hero__bar-end">Role para explorar <span aria-hidden="true">↓</span></span>
-      </div>
+      <div class="hero__flash" aria-hidden="true"></div>
     </section>
+    </div>
 
     <!-- Letreiro -->
     <section class="marquee" aria-label="Destaques da loja">
@@ -186,19 +183,20 @@
     <section class="about" id="a-loja">
       <div class="shell about__grid">
         <div class="about__left">
+          <svg class="about__mark" viewBox="0 0 24 24" aria-hidden="true">
+            <g fill="none" stroke="currentColor" stroke-width="0.55" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.2 5.700a1.800 1.800 0 1 1 2.700 1.560c-.560.320-.900.800-.900 1.440v.500" />
+              <path d="M12 9.200 3.100 15.300c-.900.620-.460 2 .640 2h16.520c1.100 0 1.540-1.380.640-2L12 9.200z" />
+            </g>
+          </svg>
           <span class="eyebrow" data-reveal="up"><i class="eyebrow__dot"></i>A Loja</span>
-          <div class="flower" id="flowerWrap">
-            <canvas class="flower__canvas" id="flower" aria-label="Flor da marca em 3D — arraste para girar" role="img"></canvas>
-            <img class="flower__fallback" src="/assets/logo-512.jpg" alt="Logo Loja Edy Modas" loading="lazy" hidden />
-            <span class="flower__hint">Arraste para girar</span>
-          </div>
           <div class="about__place" data-reveal="up">
             <svg class="icon"><use href="#i-pin" /></svg>
             <span id="aboutAddress">No coração de Mariano Moro, de portas abertas para toda a região.</span>
           </div>
         </div>
         <div class="about__right">
-          <h2 class="about__statement" data-reveal="words">Há 20 anos a Edy Modas veste Mariano Moro com <span class="muted">moda feminina, masculina e infantil, calçados e tudo de cama, mesa e banho — escolhido peça por peça para você.</span></h2>
+          <h2 class="about__statement" data-scroll-text>Há 20 anos a Edy Modas veste Mariano Moro com moda feminina, masculina e infantil, calçados e tudo de cama, mesa e banho — escolhido peça por peça para você.</h2>
           <div class="about__footer" data-reveal="up" data-delay="200">
             <div>
               <p class="about__label">Encontre a gente</p>

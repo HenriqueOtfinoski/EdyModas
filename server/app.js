@@ -72,7 +72,6 @@ export function createApp(db, opts = {}) {
   app.get('/vendor/lenis.mjs', (req, res) =>
     res.sendFile(path.join(ROOT, 'node_modules', 'lenis', 'dist', 'lenis.mjs'))
   );
-  app.use('/vendor/three', express.static(path.join(ROOT, 'node_modules', 'three', 'build'), { maxAge: '7d' }));
 
   app.use('/uploads', express.static(uploadsDir, { maxAge: '7d', index: false }));
   app.use('/admin', express.static(path.join(ROOT, 'admin')));

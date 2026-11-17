@@ -1,6 +1,6 @@
 // Revelação líquida (como na referência Lumora): a foto base fica sempre visível e o cursor
 // pinta um rastro macio da segunda foto ("depois") por cima; o rastro se desfaz aos poucos.
-// Extra pedido pela loja: enquanto o cursor estiver parado sobre a foto, o efeito continua ativo ali.
+// Sem movimento, o rastro some por completo e a foto volta ao normal.
 import { reducedMotion, canHover, onReady } from './core.js';
 
 const FADE_FRAMES = 120;
@@ -25,7 +25,7 @@ export function initLiquidReveal(container, { brushRadius = 143, decay = 0.016 }
   let idle = FADE_FRAMES + 1;
   let running = false;
   let visible = true;
-  const pointer = { x: 0, y: 0, inside: false }; // cursor do mouse (coordenadas da janela)
+  const pointer = { inside: false }; // há um mouse em uso (cancela a passada automática)
   let demo = null; // passada automática de convite
 
   // O "depois" usa o mesmo enquadramento (object-fit: cover + object-position) da foto base.
@@ -89,9 +89,6 @@ export function initLiquidReveal(container, { brushRadius = 143, decay = 0.016 }
     last = { x, y };
   }
 
-  // cursor parado sobre a foto: o efeito permanece ali
-  const resting = () => pointer.inside && visible && pointer.y >= rect.top && pointer.y <= rect.bottom && pointer.x >= rect.left && pointer.x <= rect.right;
-
   function tick(now) {
     if (!running) return;
     if (demo) {
@@ -103,7 +100,6 @@ export function initLiquidReveal(container, { brushRadius = 143, decay = 0.016 }
         pushPoint(canvas.width * (0.3 + 0.4 * e), canvas.height * (0.34 + 0.2 * Math.sin(e * Math.PI * 2)));
       }
     }
-    if (!points.length && resting()) points.push({ x: (pointer.x - rect.left) * dpr, y: (pointer.y - rect.top) * dpr });
 
     const drawing = points.length > 0;
     if (drawing) idle = 0;
@@ -133,11 +129,11 @@ export function initLiquidReveal(container, { brushRadius = 143, decay = 0.016 }
   function onMove(e) {
     if (!after.naturalWidth) return;
     if (e.pointerType === 'mouse' || e.pointerType === 'pen') {
-      pointer.x = e.clientX;
-      pointer.y = e.clientY;
       pointer.inside = true;
     }
-    pushPoint((e.clientX - rect.left) * dpr, (e.clientY - rect.top) * dpr);
+    // usa a proporção dentro do contêiner: continua certo quando a foto está com zoom da transição
+    rect = container.getBoundingClientRect();
+    pushPoint(((e.clientX - rect.left) / rect.width) * canvas.width, ((e.clientY - rect.top) / rect.height) * canvas.height);
     wake();
   }
   function startDemo(duration = 2600) {

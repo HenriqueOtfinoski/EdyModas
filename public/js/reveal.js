@@ -107,3 +107,57 @@ export function countUpOnScroll(el, value, format = (n) => n.toLocaleString('pt-
 export function resetCounters() {
   counters.clear();
 }
+
+// ---- Texto que escurece palavra por palavra conforme a rolagem ----
+const DIM = 0.16; // opacidade das palavras ainda "apagadas" (igual ao CSS)
+const SOFT = 5; // quantas palavras ficam em transição ao mesmo tempo
+
+export function initScrollText() {
+  const blocks = [...document.querySelectorAll('[data-scroll-text]')].map((el) => {
+    const words = [];
+    const frag = document.createDocumentFragment();
+    for (const part of el.textContent.split(/(\s+)/)) {
+      if (!part) continue;
+      if (/^\s+$/.test(part)) frag.append(' ');
+      else {
+        const span = document.createElement('span');
+        span.className = 'sw';
+        span.textContent = part;
+        words.push(span);
+        frag.append(span);
+      }
+    }
+    el.setAttribute('aria-label', el.textContent.trim());
+    el.replaceChildren(frag);
+    return { el, words, last: -1 };
+  });
+  if (!blocks.length || reducedMotion) return;
+
+  let queued = false;
+  const update = () => {
+    queued = false;
+    const vh = window.innerHeight;
+    for (const b of blocks) {
+      const rect = b.el.getBoundingClientRect();
+      // começa quando o texto entra pela base da tela e termina com ele um pouco acima do centro
+      const start = vh * 0.9;
+      const end = vh * 0.42 - rect.height / 2;
+      const progress = clamp((start - rect.top) / Math.max(1, start - end), 0, 1);
+      if (Math.abs(progress - b.last) < 0.002) continue;
+      b.last = progress;
+      const head = progress * (b.words.length + SOFT);
+      b.words.forEach((w, i) => {
+        const p = clamp((head - i) / SOFT, 0, 1);
+        w.style.opacity = (DIM + (1 - DIM) * p).toFixed(3);
+      });
+    }
+  };
+  const request = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(update);
+  };
+  addEventListener('scroll', request, { passive: true });
+  addEventListener('resize', request);
+  update();
+}
