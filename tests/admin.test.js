@@ -1,7 +1,8 @@
 import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
+import sharp from 'sharp';
 import { startTestApp, postJson, validLead } from './helpers.js';
-import { hashPassword, verifyPassword, ensureAdmin } from '../server/auth.js';
+import { hashPassword, verifyPassword, ensureAdmin, adminConfigProblem } from '../server/auth.js';
 
 const USER = 'admin';
 const PASS = 'senha-de-teste-123';
@@ -209,10 +210,10 @@ test('upload aceita PNG válido e devolve URL servida pelo site', async () => {
   const res = await upload(PNG_1PX, 'pixel.png', 'image/png');
   assert.equal(res.status, 200);
   const { url } = await res.json();
-  assert.match(url, /^\/uploads\/[a-f0-9]+\.png$/);
+  assert.match(url, /^\/uploads\/[a-f0-9]+\.webp$/);
   const img = await fetch(`${ctx.url}${url}`);
   assert.equal(img.status, 200);
-  assert.equal(img.headers.get('content-type'), 'image/png');
+  assert.equal(img.headers.get('content-type'), 'image/webp');
 });
 
 test('upload sem arquivo responde 400', async () => {
@@ -258,4 +259,71 @@ test('ensureAdmin atualiza a senha quando ela muda no .env', () => {
   const row = ctx.db.prepare("SELECT password_hash FROM admin_users WHERE username = 'outro'").get();
   assert.equal(verifyPassword('segunda-senha', row.password_hash), true);
   assert.equal(ctx.db.prepare("SELECT COUNT(*) n FROM admin_users WHERE username = 'outro'").get().n, 1);
+});
+
+test('senha trocada no painel continua valendo ao reiniciar com o mesmo .env', () => {
+  ensureAdmin(ctx.db, 'reinicio', 'senha-do-env-1');
+  // a loja troca a senha pelo painel
+  ctx.db.prepare("UPDATE admin_users SET password_hash = ? WHERE username = 'reinicio'").run(hashPassword('senha-do-painel'));
+  // o servidor reinicia com o mesmo .env
+  ensureAdmin(ctx.db, 'reinicio', 'senha-do-env-1');
+  const row = ctx.db.prepare("SELECT password_hash FROM admin_users WHERE username = 'reinicio'").get();
+  assert.equal(verifyPassword('senha-do-painel', row.password_hash), true);
+  assert.equal(verifyPassword('senha-do-env-1', row.password_hash), false);
+});
+
+test('senha nova no .env passa a valer ao reiniciar', () => {
+  ensureAdmin(ctx.db, 'reinicio2', 'senha-do-env-1');
+  ctx.db.prepare("UPDATE admin_users SET password_hash = ? WHERE username = 'reinicio2'").run(hashPassword('senha-do-painel'));
+  ensureAdmin(ctx.db, 'reinicio2', 'senha-do-env-2');
+  const row = ctx.db.prepare("SELECT password_hash FROM admin_users WHERE username = 'reinicio2'").get();
+  assert.equal(verifyPassword('senha-do-env-2', row.password_hash), true);
+});
+
+test('configuração do painel com valores de exemplo ou senha curta é recusada', () => {
+  assert.match(adminConfigProblem('', 'uma-senha-boa-123'), /ADMIN_USER/);
+  assert.match(adminConfigProblem('loja', 'curta'), /10/);
+  assert.match(adminConfigProblem('loja', 'troque-esta-senha'), /exemplo/);
+  assert.match(adminConfigProblem('escolha-um-usuario', 'escolha-uma-senha-forte'), /exemplo/);
+  assert.equal(adminConfigProblem('loja', 'uma-senha-boa-123'), null);
+});
+
+test('dados internos não aparecem na API pública', async () => {
+  ensureAdmin(ctx.db, 'interno', 'senha-interna-123');
+  const site = await (await fetch(`${ctx.url}/api/site`)).json();
+  const keys = Object.keys(site.settings);
+  assert.ok(!keys.some((k) => /seeded|admin|password|hash/i.test(k)), keys.join(','));
+});
+
+test('stats ignora eventos fora do período', async () => {
+  ctx.db.exec("DELETE FROM events");
+  ctx.db.prepare("INSERT INTO events (type, detail, created_at) VALUES ('visit', '', datetime('now', '-40 days'))").run();
+  ctx.db.prepare("INSERT INTO events (type, detail) VALUES ('visit', '')").run();
+  const stats = await (await api('/stats?days=30')).json();
+  assert.equal(stats.totals.visits, 1);
+});
+
+test('foto grande enviada pelo painel é reduzida para até 1600px, vira WebP e perde os dados de GPS', async () => {
+  const big = await sharp({ create: { width: 4000, height: 3000, channels: 3, background: '#e24d7f' } })
+    .withExif({ IFD0: { Artist: 'celular-da-loja' } })
+    .jpeg({ quality: 95 })
+    .toBuffer();
+  assert.ok((await sharp(big).metadata()).exif, 'a foto de teste precisa ter metadados');
+  const res = await upload(big, 'foto-do-celular.jpg', 'image/jpeg');
+  assert.equal(res.status, 200);
+  const { url } = await res.json();
+  assert.match(url, /\.webp$/);
+  const saved = Buffer.from(await (await fetch(`${ctx.url}${url}`)).arrayBuffer());
+  const meta = await sharp(saved).metadata();
+  assert.equal(meta.format, 'webp');
+  assert.equal(Math.max(meta.width, meta.height), 1600);
+  assert.equal(meta.exif, undefined);
+});
+
+test('foto pequena não é ampliada', async () => {
+  const small = await sharp({ create: { width: 800, height: 600, channels: 3, background: '#0a0a0a' } }).png().toBuffer();
+  const res = await upload(small, 'pequena.png', 'image/png');
+  const { url } = await res.json();
+  const meta = await sharp(Buffer.from(await (await fetch(`${ctx.url}${url}`)).arrayBuffer())).metadata();
+  assert.deepEqual([meta.width, meta.height], [800, 600]);
 });

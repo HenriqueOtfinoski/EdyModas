@@ -1,4 +1,5 @@
 import multer from 'multer';
+import sharp from 'sharp';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -19,11 +20,28 @@ export function sniffImage(buf) {
   return null;
 }
 
-/** Grava a imagem com nome aleatório e devolve a URL pública. */
-export function saveImage(buf, uploadsDir) {
-  const ext = sniffImage(buf);
-  if (!ext) return null;
-  const name = `${crypto.randomBytes(12).toString('hex')}.${ext}`;
-  fs.writeFileSync(path.join(uploadsDir, name), buf);
+/** Lado maior das fotos guardadas: suficiente para telas grandes e retina. */
+export const MAX_SIDE = 1600;
+
+/**
+ * Grava a imagem com nome aleatório e devolve a URL pública.
+ * Fotos de celular chegam com 3–5 MB e com metadados (GPS, aparelho): aqui elas são giradas conforme
+ * a orientação, reduzidas para no máximo 1600 px, convertidas para WebP e salvas SEM metadados.
+ * Devolve null se o arquivo não for uma imagem válida.
+ */
+export async function saveImage(buf, uploadsDir) {
+  if (!sniffImage(buf)) return null;
+  let out;
+  try {
+    out = await sharp(buf, { failOn: 'error' })
+      .rotate()
+      .resize({ width: MAX_SIDE, height: MAX_SIDE, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 82 })
+      .toBuffer();
+  } catch {
+    return null; // assinatura de imagem, mas conteúdo corrompido
+  }
+  const name = `${crypto.randomBytes(12).toString('hex')}.webp`;
+  fs.writeFileSync(path.join(uploadsDir, name), out);
   return `/uploads/${name}`;
 }

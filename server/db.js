@@ -65,8 +65,10 @@ CREATE INDEX IF NOT EXISTS events_created ON events(created_at);
 CREATE TABLE IF NOT EXISTS admin_users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT NOT NULL UNIQUE,
-  password_hash TEXT NOT NULL
+  password_hash TEXT NOT NULL,
+  env_hash TEXT -- última senha do .env já aplicada (hash), para não sobrescrever a trocada no painel
 );
+CREATE INDEX IF NOT EXISTS leads_created ON leads(created_at);
 CREATE TABLE IF NOT EXISTS sessions (
   token TEXT PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES admin_users(id) ON DELETE CASCADE,
@@ -81,7 +83,14 @@ export function openDb(dbPath) {
   db.exec('PRAGMA foreign_keys = ON;');
   if (dbPath !== ':memory:') db.exec('PRAGMA journal_mode = WAL;');
   db.exec(SCHEMA);
+  migrate(db);
   return db;
+}
+
+/** Ajustes em bancos criados por versões anteriores. */
+function migrate(db) {
+  const cols = db.prepare('PRAGMA table_info(admin_users)').all().map((c) => c.name);
+  if (!cols.includes('env_hash')) db.exec('ALTER TABLE admin_users ADD COLUMN env_hash TEXT');
 }
 
 /** Devolve todas as configurações, com valores JSON já convertidos. */

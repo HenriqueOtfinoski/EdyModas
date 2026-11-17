@@ -1,5 +1,6 @@
 import express from 'express';
 import helmet from 'helmet';
+import compression from 'compression';
 import { rateLimit } from 'express-rate-limit';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -50,6 +51,7 @@ export function createApp(db, opts = {}) {
       },
     })
   );
+  app.use(compression()); // HTML, CSS, JS e JSON vão comprimidos (cerca de 4x menores)
   app.use(express.json({ limit: '50kb' }));
 
   app.use(
@@ -70,11 +72,13 @@ export function createApp(db, opts = {}) {
 
   // Bibliotecas do frontend servidas localmente (sem CDN)
   app.get('/vendor/lenis.mjs', (req, res) =>
-    res.sendFile(path.join(ROOT, 'node_modules', 'lenis', 'dist', 'lenis.mjs'))
+    res.sendFile(path.join(ROOT, 'node_modules', 'lenis', 'dist', 'lenis.mjs'), { maxAge: '7d' })
   );
 
   app.use('/uploads', express.static(uploadsDir, { maxAge: '7d', index: false }));
   app.use('/admin', express.static(path.join(ROOT, 'admin')));
+  // Imagens e ícones: 1 dia de cache no navegador (CSS/JS/HTML são revalidados a cada visita)
+  app.use('/assets', express.static(path.join(ROOT, 'public', 'assets'), { maxAge: '1d', index: false }));
   app.use(express.static(path.join(ROOT, 'public'), { extensions: ['html'] }));
 
   app.use((req, res) => res.status(404).sendFile(path.join(ROOT, 'public', '404.html'), (err) => {

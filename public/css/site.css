@@ -52,7 +52,6 @@ img { display: block; max-width: 100%; }
 .icon { width: 1em; height: 1em; display: inline-block; flex: none; }
 .icon.flip { transform: rotate(180deg); }
 .shell { max-width: 88rem; margin-inline: auto; }
-.muted { color: var(--muted); }
 
 .skip-link { position: fixed; left: 1rem; top: -4rem; z-index: 130; border-radius: var(--r-control); background: var(--ink); padding: 0.5rem 1rem; font-size: 0.875rem; color: #fff; }
 .skip-link:focus { top: 1rem; }

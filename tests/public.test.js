@@ -191,3 +191,23 @@ test('validateLead normaliza espaços e limita a origem', () => {
   assert.equal(r.value.name, 'Ana');
   assert.equal(r.value.source.length, 40);
 });
+
+test('textos do site são enviados comprimidos (gzip)', async () => {
+  const res = await fetch(`${ctx.url}/css/site.css`, { headers: { 'Accept-Encoding': 'gzip' } });
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('content-encoding'), 'gzip');
+});
+
+test('imagens do site ficam em cache no navegador por 1 dia', async () => {
+  const res = await fetch(`${ctx.url}/assets/img/loja.jpg`);
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get('cache-control'), /max-age=86400/);
+});
+
+test('robots.txt esconde o painel e a API dos buscadores', async () => {
+  const res = await fetch(`${ctx.url}/robots.txt`);
+  assert.equal(res.status, 200);
+  const txt = await res.text();
+  assert.match(txt, /Disallow: \/admin/);
+  assert.match(txt, /Disallow: \/api/);
+});

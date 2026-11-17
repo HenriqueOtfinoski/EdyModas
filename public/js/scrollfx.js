@@ -139,7 +139,3 @@ export function initManifesto() {
   });
   request();
 }
-
-export function refreshScrollFx() {
-  request();
-}

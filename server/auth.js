@@ -17,15 +17,32 @@ export function verifyPassword(password, stored) {
   return expected.length === actual.length && crypto.timingSafeEqual(expected, actual);
 }
 
-/** Garante que o usuário do .env existe e que a senha do .env é a que vale. */
+const EXAMPLE_VALUES = ['troque-esta-senha', 'escolha-um-usuario', 'escolha-uma-senha-forte'];
+
+/** Diz o que está errado no usuário/senha do .env (ou null se estiver tudo certo). */
+export function adminConfigProblem(username, password) {
+  if (!username || !password) return 'defina ADMIN_USER e ADMIN_PASSWORD no arquivo .env';
+  if (EXAMPLE_VALUES.includes(username) || EXAMPLE_VALUES.includes(password)) return 'troque os valores de exemplo de ADMIN_USER e ADMIN_PASSWORD no arquivo .env';
+  if (password.length < 10) return 'ADMIN_PASSWORD precisa ter pelo menos 10 caracteres';
+  return null;
+}
+
+/**
+ * Garante que o usuário do .env existe. A senha do .env só é (re)aplicada quando ela muda no .env:
+ * assim, uma senha trocada pelo painel continua valendo depois que o servidor reinicia.
+ */
 export function ensureAdmin(db, username, password) {
-  const row = db.prepare('SELECT id, password_hash FROM admin_users WHERE username = ?').get(username);
+  const row = db.prepare('SELECT id, password_hash, env_hash FROM admin_users WHERE username = ?').get(username);
   if (!row) {
-    db.prepare('INSERT INTO admin_users (username, password_hash) VALUES (?, ?)').run(username, hashPassword(password));
-  } else if (!verifyPassword(password, row.password_hash)) {
+    db.prepare('INSERT INTO admin_users (username, password_hash, env_hash) VALUES (?, ?, ?)').run(username, hashPassword(password), hashPassword(password));
+    return;
+  }
+  if (row.env_hash && verifyPassword(password, row.env_hash)) return; // .env igual ao da última vez
+  if (!verifyPassword(password, row.password_hash)) {
     db.prepare('UPDATE admin_users SET password_hash = ? WHERE id = ?').run(hashPassword(password), row.id);
     db.prepare('DELETE FROM sessions WHERE user_id = ?').run(row.id);
   }
+  db.prepare('UPDATE admin_users SET env_hash = ? WHERE id = ?').run(hashPassword(password), row.id);
 }
 
 // O banco guarda só o hash do token: quem ler o arquivo não consegue assumir sessões.

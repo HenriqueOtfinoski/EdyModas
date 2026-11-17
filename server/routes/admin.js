@@ -307,12 +307,13 @@ export function adminRoutes(db, { uploadsDir, loginLimiter }) {
     const days = Math.min(90, Math.max(1, Number.parseInt(req.query.days, 10) || 30));
     const since = `-${days - 1} days`;
     const dayExpr = "date(created_at, '-3 hours')";
-    const from = `date('now', '-3 hours', '${since}')`;
+    // início do primeiro dia do período (meia-noite de Brasília) convertido para UTC: assim a busca usa o índice de data
+    const from = `datetime(date('now', '-3 hours', '${since}'), '+3 hours')`;
     const events = db
-      .prepare(`SELECT ${dayExpr} AS day, type, COUNT(*) AS n FROM events WHERE ${dayExpr} >= ${from} GROUP BY day, type`)
+      .prepare(`SELECT ${dayExpr} AS day, type, COUNT(*) AS n FROM events WHERE created_at >= ${from} GROUP BY day, type`)
       .all();
     const leads = db
-      .prepare(`SELECT ${dayExpr} AS day, COUNT(*) AS n FROM leads WHERE ${dayExpr} >= ${from} GROUP BY day`)
+      .prepare(`SELECT ${dayExpr} AS day, COUNT(*) AS n FROM leads WHERE created_at >= ${from} GROUP BY day`)
       .all();
 
     const byDay = [];
@@ -342,8 +343,8 @@ export function adminRoutes(db, { uploadsDir, loginLimiter }) {
   });
 
   // Upload de imagem
-  router.post('/upload', uploadMiddleware, (req, res) => {
-    const url = req.file ? saveImage(req.file.buffer, uploadsDir) : null;
+  router.post('/upload', uploadMiddleware, async (req, res) => {
+    const url = req.file ? await saveImage(req.file.buffer, uploadsDir) : null;
     if (!url) return res.status(400).json({ errors: ['Envie uma imagem JPG, PNG ou WebP de até 5 MB.'] });
     res.json({ url });
   });
