@@ -243,12 +243,13 @@ test('stats soma visitas, cliques e contatos do período', async () => {
   await postJson(`${ctx.url}/api/events`, { type: 'visit' });
   await postJson(`${ctx.url}/api/events`, { type: 'click_whatsapp', detail: 'hero' });
   await postJson(`${ctx.url}/api/events`, { type: 'click_instagram', detail: 'rodape' });
+  await postJson(`${ctx.url}/api/events`, { type: 'click_maps', detail: 'visite' });
   await postJson(`${ctx.url}/api/leads`, validLead);
   const stats = await (await api('/stats?days=7')).json();
-  assert.deepEqual(stats.totals, { visits: 2, whatsapp: 1, instagram: 1, facebook: 0, products: 0, leads: 1 });
+  assert.deepEqual(stats.totals, { visits: 2, whatsapp: 1, instagram: 1, facebook: 0, products: 0, maps: 1, leads: 1 });
   assert.equal(stats.byDay.length, 7);
   const today = stats.byDay.at(-1);
-  assert.deepEqual({ visits: today.visits, clicks: today.clicks, leads: today.leads }, { visits: 2, clicks: 2, leads: 1 });
+  assert.deepEqual({ visits: today.visits, clicks: today.clicks, leads: today.leads }, { visits: 2, clicks: 3, leads: 1 });
 });
 
 test('ensureAdmin atualiza a senha quando ela muda no .env', () => {

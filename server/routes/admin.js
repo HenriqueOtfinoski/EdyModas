@@ -324,8 +324,8 @@ export function adminRoutes(db, { uploadsDir, loginLimiter }) {
       byDay.push(entry);
       index.set(day, entry);
     }
-    const totals = { visits: 0, whatsapp: 0, instagram: 0, facebook: 0, products: 0, leads: 0 };
-    const totalKey = { visit: 'visits', click_whatsapp: 'whatsapp', click_instagram: 'instagram', click_facebook: 'facebook', click_product: 'products' };
+    const totals = { visits: 0, whatsapp: 0, instagram: 0, facebook: 0, products: 0, maps: 0, leads: 0 };
+    const totalKey = { visit: 'visits', click_whatsapp: 'whatsapp', click_instagram: 'instagram', click_facebook: 'facebook', click_product: 'products', click_maps: 'maps' };
     for (const e of events) {
       const key = totalKey[e.type];
       if (!key) continue;
