@@ -149,9 +149,8 @@ export function renderManifestoStats(el) {
   initReveals(el);
 }
 
-/** Seção "Visite a loja": status ao vivo, horários da semana e link do mapa. */
-export function renderVisit() {
-  const s = site.settings;
+/** Status de aberto/fechado da seção "Visite a loja". */
+export function applyVisitStatus() {
   const { isOpen, label } = site.open || {};
   const status = document.getElementById('visitStatus');
   const dot = document.getElementById('visitDot');
@@ -159,6 +158,12 @@ export function renderVisit() {
     status.textContent = label;
     dot.className = `status-dot ${isOpen ? 'is-open' : 'is-closed'}`;
   }
+}
+
+/** Seção "Visite a loja": status ao vivo, horários da semana e link do mapa. */
+export function renderVisit() {
+  const s = site.settings;
+  applyVisitStatus();
   const list = document.getElementById('visitHours');
   const summary = hoursSummary(s.hours);
   if (list && summary) {
@@ -168,8 +173,10 @@ export function renderVisit() {
   }
   const maps = document.getElementById('mapsLink');
   if (maps) {
-    const where = /mariano moro/i.test(s.address || '') ? s.address : `${s.address || ''} Mariano Moro RS`;
-    maps.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`Edy Modas ${where}`)}`;
+    // Busca só pelo endereço: com o nome da loja junto, o Google lista outras "Edy Modas" do Brasil.
+    const address = String(s.address || FALLBACK.settings.address).replace(/\s*[—–]\s*/g, ', ').trim();
+    const where = /mariano moro/i.test(address) ? address : `${address}, Mariano Moro, RS`;
+    maps.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(where)}`;
   }
 }
 

@@ -7,7 +7,8 @@ import { initCompactHeader, initHorizontalCollections, initShowcase, initManifes
 import { initLiquidReveal } from './liquid.js';
 import { initTilt } from './tilt.js';
 import { initTracking } from './track.js';
-import { loadSite, applySettings, renderMarquee, renderManifestoStats, renderVisit, renderCollections, renderProducts, renderPromotion, renderTestimonials } from './data.js';
+import { openStatus } from './hours.js';
+import { site, loadSite, applySettings, renderMarquee, renderManifestoStats, renderVisit, applyVisitStatus, renderCollections, renderProducts, renderPromotion, renderTestimonials } from './data.js';
 import { initHeader, applyOpenStatus, initNavMenu, initModal, initActions, initCarousel, initHeroParallax, initFab, initVip } from './ui.js';
 
 const $ = (id) => document.getElementById(id);
@@ -32,10 +33,21 @@ initShowcase();
 initManifesto();
 const refreshCollections = initHorizontalCollections();
 
+// Aberto/fechado é recalculado no navegador: com a página aberta, o status muda na hora certa
+// (ex.: às 18h passa para "Fechado"), sem depender do horário em que a página foi carregada.
+function refreshOpenStatus() {
+  const live = openStatus(site.settings.hours);
+  if (live.label) site.open = live;
+  applyOpenStatus();
+  applyVisitStatus();
+}
+setInterval(refreshOpenStatus, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshOpenStatus(); });
+
 // Conteúdo padrão primeiro (a página nunca fica vazia); a API atualiza em seguida.
 function renderAll() {
   applySettings();
-  applyOpenStatus();
+  refreshOpenStatus();
   renderMarquee($('marquee'));
   renderManifestoStats($('manifestoStats'));
   renderVisit();
