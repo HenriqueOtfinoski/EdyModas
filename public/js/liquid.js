@@ -1,9 +1,14 @@
 // Revelação líquida (como na referência Lumora): a foto base fica sempre visível e o cursor
 // pinta um rastro macio da segunda foto ("depois") por cima; o rastro se desfaz aos poucos.
-// Sem movimento, o rastro some por completo e a foto volta ao normal.
+// Sem movimento, o rastro começa a apagar na hora e some devagar, em fade suave, até a foto voltar ao normal.
 import { reducedMotion, canHover, onReady } from './core.js';
 
-const FADE_FRAMES = 120;
+const HOLD_MS = 120; // tolerância mínima entre um movimento e outro do mouse (evita piscar ao mover devagar)
+const FADE_MS = 2200; // parou de mexer: começa a apagar na hora e some devagar ao longo deste tempo
+const IDLE_DECAY = 0.004; // esvaimento leve por quadro enquanto está parado (60 qps)
+const FRAME_MS = 1000 / 60;
+// já começa a clarear no primeiro instante e desacelera no final, para sumir com suavidade
+const fadeCurve = (x) => Math.pow(1 - x, 1.35);
 const MAX_POINTS = 60;
 
 export function initLiquidReveal(container, { brushRadius = 143, decay = 0.016 } = {}) {
@@ -22,8 +27,9 @@ export function initLiquidReveal(container, { brushRadius = 143, decay = 0.016 }
   let dpr = 1, radius = 0, diam = 0, rect = container.getBoundingClientRect();
   let points = [];
   let last = null;
-  let idle = FADE_FRAMES + 1;
   let running = false;
+  let prev = 0; // instante do quadro anterior
+  let lastDraw = 0; // instante da última pincelada
   let visible = true;
   const pointer = { inside: false }; // há um mouse em uso (cancela a passada automática)
   let demo = null; // passada automática de convite
@@ -89,8 +95,28 @@ export function initLiquidReveal(container, { brushRadius = 143, decay = 0.016 }
     last = { x, y };
   }
 
+  // esvaimento independente da taxa de quadros do monitor (60, 120, 144 Hz...)
+  function erase(perFrame, dt) {
+    const alpha = 1 - Math.pow(1 - perFrame, dt / FRAME_MS);
+    if (alpha < 0.002) return;
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+  // se o mouse volta a mexer no meio do fade, "grava" a transparência atual no desenho para não piscar
+  function bakeOpacity() {
+    const op = parseFloat(canvas.style.opacity);
+    if (Number.isNaN(op) || op >= 1) return;
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = `rgba(0,0,0,${1 - op})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    canvas.style.opacity = '';
+  }
+
   function tick(now) {
     if (!running) return;
+    const dt = Math.min(Math.max(now - prev, 0), 50);
+    prev = now;
     if (demo) {
       const t = (now - demo.start) / demo.duration;
       if (t >= 1 || pointer.inside) demo = null;
@@ -101,28 +127,34 @@ export function initLiquidReveal(container, { brushRadius = 143, decay = 0.016 }
       }
     }
 
-    const drawing = points.length > 0;
-    if (drawing) idle = 0;
-    else if (++idle > FADE_FRAMES) {
-      running = false;
-      return;
-    }
-    const fade = drawing ? decay : Math.min(decay + idle * 0.004, 0.5);
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.fillStyle = `rgba(0,0,0,${fade})`;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    if (drawing) {
+    if (points.length) {
+      // em movimento: o rastro antigo se desfaz no ritmo da referência e as pinceladas novas entram
+      bakeOpacity();
+      erase(decay, dt);
       for (const p of points) stamp(p.x, p.y);
       points = [];
-    } else if (idle === FADE_FRAMES) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // limpeza final: não sobra resíduo
+      lastDraw = now;
+    } else {
+      // parado: segura um instante, depois apaga tudo devagar (opacidade com curva suave)
+      erase(IDLE_DECAY, dt);
+      const idle = now - lastDraw;
+      if (idle > HOLD_MS) {
+        const p = Math.min(1, (idle - HOLD_MS) / FADE_MS);
+        canvas.style.opacity = fadeCurve(p).toFixed(4);
+        if (p >= 1) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height); // limpeza final: não sobra resíduo
+          canvas.style.opacity = '';
+          running = false;
+          return;
+        }
+      }
     }
     requestAnimationFrame(tick);
   }
   function wake() {
     if (running || !visible) return;
     running = true;
-    idle = 0;
+    prev = lastDraw = performance.now();
     requestAnimationFrame(tick);
   }
 

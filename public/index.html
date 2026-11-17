@@ -32,7 +32,12 @@
     "description": "Moda feminina, masculina e infantil, calçados e cama, mesa e banho.",
     "image": "/assets/og.jpg",
     "telephone": "+55 54 99472-0227",
-    "address": { "@type": "PostalAddress", "addressLocality": "Mariano Moro", "addressRegion": "RS", "addressCountry": "BR" },
+    "address": { "@type": "PostalAddress", "streetAddress": "R. Rio Branco, 54", "addressLocality": "Mariano Moro", "addressRegion": "RS", "addressCountry": "BR" },
+    "openingHoursSpecification": [
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "08:00", "closes": "11:30" },
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "13:30", "closes": "18:00" },
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "08:00", "closes": "11:30" }
+    ],
     "sameAs": ["https://www.instagram.com/loja_edy_modas/", "https://www.facebook.com/edi.rossarola"]
   }
   </script>
@@ -114,6 +119,7 @@
       <div class="liquid" id="liquid">
         <img class="liquid__base" src="/assets/img/hero-before.jpg" alt="Retrato de modelo em tons de cinza; ao passar o cursor, a cena ganha cor, blazer pink e óculos escuros" fetchpriority="high" />
         <canvas class="liquid__canvas" aria-hidden="true" data-after="/assets/img/hero-after.jpg"></canvas>
+        <img class="liquid__base liquid__after" src="/assets/img/hero-after.jpg" alt="" aria-hidden="true" loading="lazy" />
       </div>
       <div class="hero__vignette" aria-hidden="true"></div>
       <div class="hero__watermark" aria-hidden="true" data-reveal="fade" data-gate="ready" data-delay="300">EDY MODAS</div>
@@ -170,68 +176,62 @@
           </div>
         </div>
       </div>
+      <div class="hero__sweep" aria-hidden="true"></div>
+      <div class="hero__glow" aria-hidden="true"></div>
       <div class="hero__flash" aria-hidden="true"></div>
     </section>
     </div>
 
-    <!-- Letreiro -->
-    <section class="marquee" aria-label="Destaques da loja">
-      <div class="marquee__track" id="marquee"></div>
-    </section>
-
-    <!-- A Loja -->
-    <section class="about" id="a-loja">
-      <div class="shell about__grid">
-        <div class="about__left">
-          <svg class="about__mark" viewBox="0 0 24 24" aria-hidden="true">
-            <g fill="none" stroke="currentColor" stroke-width="0.55" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M10.2 5.700a1.800 1.800 0 1 1 2.700 1.560c-.560.320-.900.800-.900 1.440v.500" />
-              <path d="M12 9.200 3.100 15.300c-.900.620-.460 2 .640 2h16.520c1.100 0 1.540-1.380.640-2L12 9.200z" />
-            </g>
-          </svg>
-          <span class="eyebrow" data-reveal="up"><i class="eyebrow__dot"></i>A Loja</span>
-          <div class="about__place" data-reveal="up">
-            <svg class="icon"><use href="#i-pin" /></svg>
-            <span id="aboutAddress">No coração de Mariano Moro, de portas abertas para toda a região.</span>
-          </div>
-        </div>
-        <div class="about__right">
-          <h2 class="about__statement" data-scroll-text>Há 20 anos a Edy Modas veste Mariano Moro com moda feminina, masculina e infantil, calçados e tudo de cama, mesa e banho — escolhido peça por peça para você.</h2>
-          <div class="about__footer" data-reveal="up" data-delay="200">
-            <div>
-              <p class="about__label">Encontre a gente</p>
+    <!-- A Loja: manifesto (continua o brilho rosa onde a transição do topo termina) -->
+    <section class="manifesto" id="a-loja">
+      <div class="manifesto__glow" aria-hidden="true"></div>
+      <div class="manifesto__inner">
+        <span class="eyebrow manifesto__eyebrow" data-reveal="up"><i class="eyebrow__dot"></i>A Loja</span>
+        <h2 class="manifesto__title" data-scroll-text>
+          <span class="manifesto__line"><span class="manifesto__pic" aria-hidden="true"><img src="/assets/img/col-feminino.jpg" alt="" loading="lazy" /></span> Vestimos</span>
+          <span class="manifesto__line">Mariano Moro</span>
+          <span class="manifesto__line">há <em>20 anos.</em> <span class="manifesto__pic manifesto__pic--b" aria-hidden="true"><img src="/assets/img/prod-01.jpg" alt="" loading="lazy" /></span></span>
+        </h2>
+        <div class="manifesto__bottom">
+          <div class="manifesto__copy" data-reveal="up">
+            <p>Moda feminina, masculina e infantil, calçados e tudo de cama, mesa e banho — escolhido peça por peça para você, com o atendimento de quem conhece a cidade.</p>
+            <div class="manifesto__actions">
+              <button class="pill pill--dark pill--arrow" type="button" data-modal="a-loja">
+                <span class="pill__in">Fale com a gente <span class="pill__badge"><svg class="icon"><use href="#i-arrow" /></svg></span></span>
+              </button>
               <div class="socials">
                 <a class="social social--accent" data-link="instagram" data-track="click_instagram:a-loja" href="https://www.instagram.com/loja_edy_modas/" target="_blank" rel="noopener" aria-label="Instagram da Edy Modas"><svg class="icon"><use href="#i-instagram" /></svg></a>
                 <a class="social" data-link="facebook" data-track="click_facebook:a-loja" href="https://www.facebook.com/edi.rossarola" target="_blank" rel="noopener" aria-label="Facebook da Edy Modas"><svg class="icon"><use href="#i-facebook" /></svg></a>
                 <a class="social" data-wa="Olá! Vim pelo site da Edy Modas." data-track="click_whatsapp:a-loja" href="https://wa.me/5554994720227" target="_blank" rel="noopener" aria-label="WhatsApp da Edy Modas"><svg class="icon"><use href="#i-whatsapp" /></svg></a>
               </div>
             </div>
-            <button class="pill pill--outline pill--arrow" type="button" data-modal="a-loja">
-              <span class="pill__in">Fale com a gente <span class="pill__badge"><svg class="icon"><use href="#i-arrow" /></svg></span></span>
-            </button>
           </div>
+          <ul class="manifesto__stats" id="manifestoStats"></ul>
         </div>
+      </div>
+      <div class="manifesto__band" aria-hidden="true">
+        <div class="mrow mrow--big" id="mrowBig"><span class="mrow__group"><span class="mrow__w">Vista</span> <svg class="icon"><use href="#i-flower" /></svg> <span class="mrow__w mrow__w--accent">seu</span> <svg class="icon"><use href="#i-flower" /></svg> <span class="mrow__w mrow__w--outline">estilo</span> <svg class="icon"><use href="#i-flower" /></svg></span><span class="mrow__group"><span class="mrow__w">Vista</span> <svg class="icon"><use href="#i-flower" /></svg> <span class="mrow__w mrow__w--accent">seu</span> <svg class="icon"><use href="#i-flower" /></svg> <span class="mrow__w mrow__w--outline">estilo</span> <svg class="icon"><use href="#i-flower" /></svg></span><span class="mrow__group"><span class="mrow__w">Vista</span> <svg class="icon"><use href="#i-flower" /></svg> <span class="mrow__w mrow__w--accent">seu</span> <svg class="icon"><use href="#i-flower" /></svg> <span class="mrow__w mrow__w--outline">estilo</span> <svg class="icon"><use href="#i-flower" /></svg></span></div>
+        <div class="mrow mrow--small" id="marquee"></div>
       </div>
     </section>
 
-    <!-- Faixa-pílula -->
-    <section class="band" aria-hidden="true">
-      <ul class="shell band__list">
-        <li data-reveal="rise" data-delay="0"><div class="band__tile band__tile--light">Vista</div></li>
-        <li data-reveal="rise" data-delay="120"><div class="band__tile band__tile--accent">Seu</div></li>
-        <li data-reveal="rise" data-delay="240"><div class="band__tile band__tile--dark"><svg class="icon"><use href="#i-arrow" /></svg></div></li>
-        <li data-reveal="rise" data-delay="360"><div class="band__tile band__tile--ghost">Estilo</div></li>
-      </ul>
-    </section>
-
-    <!-- Coleções -->
+    <!-- Coleções (faixa escura; no desktop os cartões andam na horizontal enquanto a página rola) -->
     <section class="collections" id="colecoes">
-      <div class="shell">
-        <div class="section-head section-head--center">
-          <span class="eyebrow eyebrow--pill" data-reveal="up"><i class="eyebrow__dot"></i>Coleções</span>
-          <h2 class="h2" data-reveal="lines" data-delay="120"><span class="line"><span>Tudo em um só lugar</span></span></h2>
+      <div class="collections__pin">
+        <div class="collections__sticky">
+          <div class="collections__giant" aria-hidden="true">COLEÇÕES</div>
+          <div class="shell collections__inner">
+            <div class="collections__intro">
+              <span class="eyebrow eyebrow--light" data-reveal="up"><i class="eyebrow__dot"></i>Coleções</span>
+              <h2 class="h2 collections__title" data-scroll-text>Tudo em um só lugar.</h2>
+              <p class="collections__lead" data-reveal="up" data-delay="120">Feminino, masculino, infantil, calçados e casa. Escolha uma coleção e veja as peças.</p>
+              <div class="collections__bar" aria-hidden="true"><i></i></div>
+            </div>
+            <div class="collections__viewport">
+              <ul class="collections__grid" id="collections"></ul>
+            </div>
+          </div>
         </div>
-        <ul class="collections__grid" id="collections"></ul>
       </div>
     </section>
 
@@ -241,7 +241,7 @@
         <div class="section-head section-head--split">
           <div>
             <span class="eyebrow" data-reveal="up"><i class="eyebrow__dot"></i>Novidades</span>
-            <h2 class="h2" data-reveal="lines" data-delay="120"><span class="line"><span>Chegou na loja</span></span></h2>
+            <h2 class="h2" data-scroll-text>Chegou na loja.</h2>
           </div>
           <div class="filters" id="filters" role="group" aria-label="Filtrar por coleção" data-reveal="up" data-delay="160"></div>
         </div>
@@ -279,7 +279,7 @@
     <section class="services" id="diferenciais">
       <div class="shell">
         <span class="eyebrow" data-reveal="up"><i class="eyebrow__dot"></i>Por que a Edy Modas</span>
-        <h2 class="h2 services__title" data-reveal="lines" data-delay="120"><span class="line"><span>Comprar aqui é diferente</span></span></h2>
+        <h2 class="h2 services__title" data-scroll-text>Comprar aqui é diferente.</h2>
         <ul class="services__list">
           <li data-reveal="row" data-delay="0">
             <a class="service" data-wa="Olá! Vim pelo site e quero ser atendido(a) pelo WhatsApp." data-track="click_whatsapp:diferenciais" href="https://wa.me/5554994720227" target="_blank" rel="noopener">
@@ -317,13 +317,50 @@
       </div>
     </section>
 
-    <!-- Números -->
-    <section class="stats">
+    <!-- Vitrine em tela cheia (a imagem "abre" e o título preenche com a rolagem) -->
+    <section class="showcase" aria-label="Do dia a dia ao look de festa">
+      <div class="showcase__pin">
+        <div class="showcase__sticky">
+          <div class="showcase__frame">
+            <img class="showcase__img" src="/assets/img/col-feminino.jpg" alt="Arara com peças femininas na loja" loading="lazy" />
+            <div class="showcase__shade"></div>
+          </div>
+          <div class="shell showcase__content">
+            <span class="eyebrow eyebrow--light"><i class="eyebrow__dot"></i>Edy Modas</span>
+            <h2 class="showcase__title" data-scroll-text data-scroll-track=".showcase__pin">Do dia a dia ao look de festa.</h2>
+            <a class="pill pill--light pill--arrow" href="#novidades" data-scroll="novidades">
+              <span class="pill__in">Ver novidades <span class="pill__badge"><svg class="icon"><use href="#i-arrow" /></svg></span></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Visite a loja (status ao vivo, horários, endereço e como chegar) -->
+    <section class="visit" id="visite">
       <div class="shell">
-        <div class="stats__panel" data-reveal="panel">
-          <span class="eyebrow eyebrow--light"><i class="eyebrow__dot"></i>Em números</span>
-          <h2 class="stats__title" data-reveal="lines" data-delay="120"><span class="line"><span>Uma história que a cidade conhece.</span></span></h2>
-          <ul class="stats__grid" id="stats"></ul>
+        <div class="visit__panel" data-reveal="panel">
+          <div class="visit__info">
+            <span class="visit__status"><i class="status-dot" id="visitDot"></i><span id="visitStatus">Mariano Moro — RS</span></span>
+            <h2 class="visit__title" data-scroll-text>Venha nos visitar.</h2>
+            <dl class="visit__list">
+              <div class="visit__row"><dt>Endereço</dt><dd data-text="address">R. Rio Branco, 54 — Mariano Moro, RS</dd></div>
+              <div class="visit__row"><dt>Horário</dt><dd><ul class="visit__hours" id="visitHours"><li>Seg a sex 8h–11h30 e 13h30–18h</li><li>Sáb 8h–11h30</li><li>Dom fechado</li></ul></dd></div>
+              <div class="visit__row"><dt>WhatsApp</dt><dd data-text="whatsapp_display">(54) 99472-0227</dd></div>
+            </dl>
+            <div class="visit__actions">
+              <a class="pill pill--light pill--arrow" id="mapsLink" data-track="click_maps:visite" href="https://www.google.com/maps/search/?api=1&amp;query=Edy%20Modas%20R.%20Rio%20Branco%2054%20Mariano%20Moro%20RS" target="_blank" rel="noopener">
+                <span class="pill__in">Como chegar <span class="pill__badge"><svg class="icon"><use href="#i-arrow-ur" /></svg></span></span>
+              </a>
+              <a class="pill pill--accent pill--arrow" data-wa="Olá! Vim pelo site e quero visitar a loja." data-track="click_whatsapp:visite" href="https://wa.me/5554994720227" target="_blank" rel="noopener">
+                <span class="pill__in">Chamar no WhatsApp <span class="pill__badge"><svg class="icon"><use href="#i-whatsapp" /></svg></span></span>
+              </a>
+            </div>
+          </div>
+          <figure class="visit__photo">
+            <img src="/assets/img/loja.jpg" alt="Interior de uma loja de roupas com araras, calçados e prateleira de cama, mesa e banho" loading="lazy" />
+            <figcaption class="visit__tag"><svg class="icon"><use href="#i-pin" /></svg> Mariano Moro — RS</figcaption>
+          </figure>
         </div>
       </div>
     </section>
@@ -333,7 +370,7 @@
       <div class="shell">
         <div class="section-head section-head--center">
           <span class="eyebrow eyebrow--pill" data-reveal="up"><i class="eyebrow__dot"></i>Depoimentos</span>
-          <h2 class="h2" data-reveal="lines" data-delay="120"><span class="line"><span>Quem compra, volta</span></span></h2>
+          <h2 class="h2" data-scroll-text>Quem compra, volta.</h2>
         </div>
         <ul class="testimonials__grid" id="testimonials"></ul>
       </div>
@@ -345,7 +382,7 @@
         <div class="section-head section-head--split">
           <div>
             <span class="eyebrow" data-reveal="up"><i class="eyebrow__dot"></i><span data-text="instagram_handle">@loja_edy_modas</span></span>
-            <h2 class="h2" data-reveal="lines" data-delay="120"><span class="line"><span>Siga e veja primeiro</span></span></h2>
+            <h2 class="h2" data-scroll-text>Siga e veja primeiro.</h2>
           </div>
           <a class="pill pill--dark pill--arrow" data-reveal="up" data-delay="160" data-link="instagram" data-track="click_instagram:mosaico-cta" href="https://www.instagram.com/loja_edy_modas/" target="_blank" rel="noopener">
             <span class="pill__in">Seguir no Instagram <span class="pill__badge"><svg class="icon"><use href="#i-arrow-ur" /></svg></span></span>
@@ -367,10 +404,7 @@
   <footer class="footer" id="contato">
     <div class="shell footer__inner">
       <div class="footer__cta">
-        <h2 class="footer__title" data-reveal="lines" data-stagger="100">
-          <span class="line"><span>Gostou de alguma peça?</span></span>
-          <span class="line"><span>Chama a gente.</span></span>
-        </h2>
+        <h2 class="footer__title" data-scroll-text>Gostou de alguma peça? Chama a gente.</h2>
         <a class="pill pill--light pill--arrow" data-reveal="up" data-wa="Olá! Vim pelo site da Edy Modas e gostei de uma peça." data-track="click_whatsapp:rodape" href="https://wa.me/5554994720227" target="_blank" rel="noopener">
           <span class="pill__in">Chamar no WhatsApp <span class="pill__badge"><svg class="icon"><use href="#i-arrow-ur" /></svg></span></span>
         </a>
@@ -393,8 +427,8 @@
         <div>
           <h3 class="footer__h">Atendimento</h3>
           <ul class="footer__links footer__links--info">
-            <li data-text="address">Centro — Mariano Moro, RS</li>
-            <li id="footerHours">Seg a sex 8h30–12h e 13h30–18h30 · Sáb 8h30–12h</li>
+            <li data-text="address">R. Rio Branco, 54 — Mariano Moro, RS</li>
+            <li id="footerHours">Seg a sex 8h–11h30 e 13h30–18h · Sáb 8h–11h30</li>
             <li><a class="alink" data-wa="Olá! Vim pelo site da Edy Modas." data-track="click_whatsapp:rodape-numero" href="https://wa.me/5554994720227" target="_blank" rel="noopener"><span data-text="whatsapp_display">(54) 99472-0227</span></a></li>
           </ul>
         </div>

@@ -30,7 +30,7 @@ export function validateLead(body) {
   };
 }
 
-export const EVENT_TYPES = ['visit', 'click_whatsapp', 'click_instagram', 'click_facebook', 'click_product'];
+export const EVENT_TYPES = ['visit', 'click_whatsapp', 'click_instagram', 'click_facebook', 'click_product', 'click_maps'];
 
 /** Valida um evento de medição. */
 export function validateEvent(body) {

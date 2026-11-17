@@ -127,6 +127,8 @@ test('POST /api/events grava tipo permitido e rejeita tipo desconhecido', async 
   assert.equal(ok.status, 204);
   const row = ctx.db.prepare("SELECT * FROM events WHERE type = 'click_whatsapp'").get();
   assert.equal(row.detail, 'hero');
+  const maps = await postJson(`${ctx.url}/api/events`, { type: 'click_maps', detail: 'visite' });
+  assert.equal(maps.status, 204, 'clique em "Como chegar" deve ser aceito');
   const bad = await postJson(`${ctx.url}/api/events`, { type: 'drop_table', detail: '' });
   assert.equal(bad.status, 400);
 });
@@ -144,9 +146,9 @@ test('respostas trazem cabeçalhos de segurança', async () => {
 });
 
 // 2026-11-17 é terça-feira; São Paulo = UTC-3
-test('openStatus: terça 10h está aberto e informa quando fecha', () => {
+test('openStatus: terça 10h está aberto e fecha às 11h30', () => {
   const s = openStatus(DEFAULT_SETTINGS.hours, new Date('2026-11-17T13:00:00Z'));
-  assert.deepEqual(s, { isOpen: true, label: 'Aberto agora • fecha 12h' });
+  assert.deepEqual(s, { isOpen: true, label: 'Aberto agora • fecha 11h30' });
 });
 
 test('openStatus: terça 12h30 está fechado e abre ainda hoje', () => {
@@ -156,7 +158,26 @@ test('openStatus: terça 12h30 está fechado e abre ainda hoje', () => {
 
 test('openStatus: domingo está fechado e abre na segunda', () => {
   const s = openStatus(DEFAULT_SETTINGS.hours, new Date('2026-11-22T13:00:00Z'));
-  assert.deepEqual(s, { isOpen: false, label: 'Fechado • abre seg 8h30' });
+  assert.deepEqual(s, { isOpen: false, label: 'Fechado • abre seg 8h' });
+});
+
+test('openStatus: terça 11h45 já fechou para o almoço e abre às 13h30', () => {
+  const s = openStatus(DEFAULT_SETTINGS.hours, new Date('2026-11-17T14:45:00Z'));
+  assert.deepEqual(s, { isOpen: false, label: 'Fechado • abre às 13h30' });
+});
+
+test('openStatus: terça 17h50 ainda aberto e fecha às 18h', () => {
+  const s = openStatus(DEFAULT_SETTINGS.hours, new Date('2026-11-17T20:50:00Z'));
+  assert.deepEqual(s, { isOpen: true, label: 'Aberto agora • fecha 18h' });
+});
+
+test('openStatus: sábado 11h40 fechado até segunda 8h', () => {
+  const s = openStatus(DEFAULT_SETTINGS.hours, new Date('2026-11-21T14:40:00Z'));
+  assert.deepEqual(s, { isOpen: false, label: 'Fechado • abre seg 8h' });
+});
+
+test('endereço padrão é o da loja', () => {
+  assert.equal(DEFAULT_SETTINGS.address, 'R. Rio Branco, 54 — Mariano Moro, RS');
 });
 
 test('openStatus: horários ausentes ou malformados não quebram', () => {

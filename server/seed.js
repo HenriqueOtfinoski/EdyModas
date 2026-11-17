@@ -1,7 +1,7 @@
 import { getSettings, setSettings } from './db.js';
 
-// Horário e endereço são EXEMPLOS até a loja informar os reais (editáveis no painel).
-const WEEKDAY = [['08:30', '12:00'], ['13:30', '18:30']];
+// Endereço e horários informados pela loja (editáveis no painel).
+const WEEKDAY = [['08:00', '11:30'], ['13:30', '18:00']];
 
 export const DEFAULT_SETTINGS = {
   whatsapp: '5554994720227',
@@ -9,9 +9,9 @@ export const DEFAULT_SETTINGS = {
   instagram_url: 'https://www.instagram.com/loja_edy_modas/',
   instagram_handle: '@loja_edy_modas',
   facebook_url: 'https://www.facebook.com/edi.rossarola',
-  address: 'Centro — Mariano Moro, RS',
+  address: 'R. Rio Branco, 54 — Mariano Moro, RS',
   // índice 0 = domingo … 6 = sábado; cada dia é uma lista de [abre, fecha]
-  hours: [[], WEEKDAY, WEEKDAY, WEEKDAY, WEEKDAY, WEEKDAY, [['08:30', '12:00']]],
+  hours: [[], WEEKDAY, WEEKDAY, WEEKDAY, WEEKDAY, WEEKDAY, [['08:00', '11:30']]],
   marquee: [
     'Novidades toda semana',
     'Moda feminina, masculina e infantil',

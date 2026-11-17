@@ -115,21 +115,31 @@ const SOFT = 5; // quantas palavras ficam em transição ao mesmo tempo
 export function initScrollText() {
   const blocks = [...document.querySelectorAll('[data-scroll-text]')].map((el) => {
     const words = [];
-    const frag = document.createDocumentFragment();
-    for (const part of el.textContent.split(/(\s+)/)) {
-      if (!part) continue;
-      if (/^\s+$/.test(part)) frag.append(' ');
-      else {
-        const span = document.createElement('span');
-        span.className = 'sw';
-        span.textContent = part;
-        words.push(span);
-        frag.append(span);
+    el.setAttribute('aria-label', el.textContent.replace(/\s+/g, ' ').trim());
+    // percorre os nós de texto e envolve cada palavra, mantendo elementos internos (linhas, destaques, fotos)
+    const walk = (node) => {
+      for (const child of [...node.childNodes]) {
+        if (child.nodeType === Node.TEXT_NODE) {
+          const frag = document.createDocumentFragment();
+          for (const part of child.textContent.split(/(\s+)/)) {
+            if (!part) continue;
+            if (/^\s+$/.test(part)) frag.append(' ');
+            else {
+              const span = document.createElement('span');
+              span.className = 'sw';
+              span.textContent = part;
+              words.push(span);
+              frag.append(span);
+            }
+          }
+          child.replaceWith(frag);
+        } else if (child.nodeType === Node.ELEMENT_NODE && !child.matches('[aria-hidden="true"], img, svg')) walk(child);
       }
-    }
-    el.setAttribute('aria-label', el.textContent.trim());
-    el.replaceChildren(frag);
-    return { el, words, last: -1 };
+    };
+    walk(el);
+
+    const track = el.dataset.scrollTrack ? el.closest(el.dataset.scrollTrack) || document.querySelector(el.dataset.scrollTrack) : null;
+    return { el, words, last: -1, track };
   });
   if (!blocks.length || reducedMotion) return;
 
@@ -138,11 +148,19 @@ export function initScrollText() {
     queued = false;
     const vh = window.innerHeight;
     for (const b of blocks) {
-      const rect = b.el.getBoundingClientRect();
-      // começa quando o texto entra pela base da tela e termina com ele um pouco acima do centro
-      const start = vh * 0.9;
-      const end = vh * 0.42 - rect.height / 2;
-      const progress = clamp((start - rect.top) / Math.max(1, start - end), 0, 1);
+      let progress;
+      if (b.track) {
+        // dentro de uma seção presa: segue o percurso dela (preenche entre 15% e 65%)
+        const t = b.track.getBoundingClientRect();
+        const total = b.track.offsetHeight - vh;
+        progress = clamp(((total > 0 ? -t.top / total : 0) - 0.15) / 0.5, 0, 1);
+      } else {
+        const rect = b.el.getBoundingClientRect();
+        // começa quando o texto entra pela base da tela e termina com ele um pouco acima do centro
+        const start = vh * 0.9;
+        const end = vh * 0.42 - rect.height / 2;
+        progress = clamp((start - rect.top) / Math.max(1, start - end), 0, 1);
+      }
       if (Math.abs(progress - b.last) < 0.002) continue;
       b.last = progress;
       const head = progress * (b.words.length + SOFT);

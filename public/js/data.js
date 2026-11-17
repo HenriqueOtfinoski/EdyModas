@@ -10,7 +10,7 @@ const FALLBACK = {
     instagram_url: 'https://www.instagram.com/loja_edy_modas/',
     instagram_handle: '@loja_edy_modas',
     facebook_url: 'https://www.facebook.com/edi.rossarola',
-    address: 'Centro — Mariano Moro, RS',
+    address: 'R. Rio Branco, 54 — Mariano Moro, RS',
     hours: null,
     marquee: ['Novidades toda semana', 'Moda feminina, masculina e infantil', 'Calçados', 'Cama, mesa e banho', 'Atendimento pelo WhatsApp', 'Há 20 anos em Mariano Moro'],
     stats: [
@@ -87,7 +87,7 @@ const fmtTime = (hhmm) => {
   const [hh, mm] = String(hhmm).split(':').map(Number);
   return mm ? `${hh}h${String(mm).padStart(2, '0')}` : `${hh}h`;
 };
-/** Resume os horários agrupando dias seguidos iguais: "Seg a sex 8h30–12h e 13h30–18h30 · Sáb 8h30–12h". */
+/** Resume os horários agrupando dias seguidos iguais: "Seg a sex 8h–11h30 e 13h30–18h · Sáb 8h–11h30". */
 export function hoursSummary(hours) {
   if (!Array.isArray(hours) || hours.length !== 7) return '';
   const text = (day) => (Array.isArray(day) ? day.map((p) => `${fmtTime(p[0])}–${fmtTime(p[1])}`).join(' e ') : '');
@@ -131,21 +131,46 @@ export function renderMarquee(el) {
   el.replaceChildren(first, second);
 }
 
-export function renderStats(el) {
+export function renderManifestoStats(el) {
+  if (!el) return;
   resetCounters();
-  const stats = (site.settings.stats?.length ? site.settings.stats : FALLBACK.settings.stats).slice(0, 6);
+  const stats = (site.settings.stats?.length ? site.settings.stats : FALLBACK.settings.stats).slice(0, 3);
   el.replaceChildren(
     ...stats.map((s, i) => {
       const number = h('span', { text: '0' });
-      const li = h('li', { 'data-reveal': 'up', 'data-delay': String(i * 90) },
-        h('div', { class: 'stats__n' }, number, document.createTextNode(s.suffix || '')),
-        h('p', { class: 'stats__l', text: s.label })
+      const li = h('li', { 'data-reveal': 'up', 'data-delay': String(i * 100) },
+        h('span', { class: 'manifesto__n' }, number, document.createTextNode(s.suffix || '')),
+        h('span', { class: 'manifesto__l', text: s.label })
       );
       countUpOnScroll(number, Number(s.value) || 0);
       return li;
     })
   );
   initReveals(el);
+}
+
+/** Seção "Visite a loja": status ao vivo, horários da semana e link do mapa. */
+export function renderVisit() {
+  const s = site.settings;
+  const { isOpen, label } = site.open || {};
+  const status = document.getElementById('visitStatus');
+  const dot = document.getElementById('visitDot');
+  if (status && label) {
+    status.textContent = label;
+    dot.className = `status-dot ${isOpen ? 'is-open' : 'is-closed'}`;
+  }
+  const list = document.getElementById('visitHours');
+  const summary = hoursSummary(s.hours);
+  if (list && summary) {
+    const lines = summary.split(' · ');
+    if (Array.isArray(s.hours) && !(Array.isArray(s.hours[0]) && s.hours[0].length)) lines.push('Dom fechado');
+    list.replaceChildren(...lines.map((line) => h('li', { text: line })));
+  }
+  const maps = document.getElementById('mapsLink');
+  if (maps) {
+    const where = /mariano moro/i.test(s.address || '') ? s.address : `${s.address || ''} Mariano Moro RS`;
+    maps.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`Edy Modas ${where}`)}`;
+  }
 }
 
 // ---------- Coleções ----------
