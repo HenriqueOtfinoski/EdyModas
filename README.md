@@ -85,7 +85,7 @@ Ficam em `public/assets/img/`. Para trocar, substitua o arquivo **mantendo o mes
 | Arquivo | Onde aparece |
 |---|---|
 | `hero-before.jpg` / `hero-after.jpg` | Foto da tela inicial (cinza) e o look revelado ao passar o mouse e na transição (rosa). As duas precisam ter o mesmo enquadramento. |
-| `loja.jpg` | Seção "Visite a loja". Hoje é uma **imagem ilustrativa**: troque pela foto real da loja (de preferência na vertical). |
+| `loja.jpg` | Seção "Visite a loja": foto real do interior da loja. Para trocar, prefira uma foto na vertical com o assunto principal no centro (o cartão corta as bordas conforme o tamanho da tela). |
 | `col-feminino.jpg` | Fotos dentro do título da seção A Loja e vitrine em tela cheia. |
 | `prod-01.jpg` | Foto dentro do título da seção A Loja. |
 | `col-*.jpg`, `prod-*.jpg` | Imagens das coleções e dos produtos de demonstração (as dos produtos são trocadas pelo painel). |
